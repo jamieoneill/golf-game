@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.23.0/dist/phaser.js"></script>
+  </head>
+  <body>
+    <script>
+      const COLOR = {
+        Green: "0x4ecf11",
+        Yellow: "0xdaee18",
+        Orange: "0xee8318",
+        Red: "0xee1818",
+        Black: "#000000",
+        White: "#ffffff",
+      };
+
+      const zero = {
+        levelNumber: 0,
+        ballStart: { x: 20, y: 180 },
+        platforms: [
+          { x: 600, y: 400, scale: 1, key: "ground" },
+          { x: 50, y: 250, scale: 1, key: "ground" },
+          { x: 750, y: 220, scale: 1, key: "ground" },
+        ],
+        spinningPlatforms: [
+          //{ x: 100, y: 100, scale: 0.2, key: "glassPlatform" },
+        ],
+        movingPlatforms: [
+          {
+            x: 100,
+            y: 450,
+            volX: 0,
+            volY: 50,
+            distanceLeft: 0,
+            distanceRight: 0,
+            distanceUp: 350,
+            distanceDown: 450,
+            scale: 0.5,
+            key: "box",
+          },
+          {
+            x: 200,
+            y: 350,
+            volX: 0,
+            volY: 50,
+            distanceLeft: 0,
+            distanceRight: 0,
+            distanceUp: 350,
+            distanceDown: 450,
+            scale: 0.5,
+            key: "box",
+          },
+        ],
+        bouncePads: [{ x: 300, y: 150 }],
+        flag: { x: 700, y: 485 },
+      };
+      const one = {
+        levelNumber: 1,
+        ballStart: { x: 100, y: 180 },
+        platforms: [
+          { x: 120, y: 262, scale: 0.5, key: "ground" },
+          { x: 655, y: 233, scale: 0.5, key: "ground" },
+          { x: 685, y: 233, scale: 0.5, key: "ground" },
+          { x: 200, y: 487, scale: 0.5, key: "box" },
+          { x: 200, y: 380, scale: 0.5, key: "box" },
+        ],
+        spinningPlatforms: [],
+        movingPlatforms: [
+          {
+            x: 320,
+            y: 310,
+            volX: 50,
+            volY: 0,
+            distanceLeft: 320,
+            distanceRight: 420,
+            distanceUp: 0,
+            distanceDown: 0,
+            scale: 0.2,
+            key: "glassPlatform",
+          },
+        ],
+        bouncePads: [
+          { x: 270, y: 250 },
+          { x: 500, y: 220 },
+        ],
+        flag: { x: 100, y: 485 },
+      };
+      const levels = [zero, one];
+
+      class SceneMain extends Phaser.Scene {
+        constructor() {
+          super("SceneMain");
+        }
+
+        init(props) {
+          //set level
+          if (typeof props[0] == "number") {
+            this.levelNumber = props[0];
+          } else {
+            this.levelNumber = 0;
+          }
+
+          //set score
+          if (typeof props[1] == "number") {
+            this.data.values.score = props[1];
+          } else {
+            this.data.values.score = 0;
+          }
+        }
+
+        preload() {
+          //load our images or sounds
+          this.load.image(
+            "ball",
+            "http://labs.phaser.io/assets/sprites/yellow_ball.png"
+          );
+
+          this.load.image(
+            "ground",
+            "http://labs.phaser.io/assets/sprites/platform.png"
+          );
+
+          this.load.image(
+            "glassPlatform",
+            "http://labs.phaser.io/assets/rope/glassblock.png"
+          );
+
+          this.load.image(
+            "box",
+            "http://labs.phaser.io/assets/sprites/1bitblock1.png"
+          );
+
+          this.load.image(
+            "powerbar",
+            "http://labs.phaser.io/assets/sprites/16x16.png" //TODO: change image
+          );
+
+          this.load.image(
+            "bouncePad",
+            "http://labs.phaser.io/assets/sprites/box-item-boxed.png" //TODO: change image
+          );
+
+          this.load.image(
+            "flag",
+            "http://labs.phaser.io/assets/sprites/orange-cat1.png" //TODO: change image
+          );
+
+          this.load.image(
+            "warp",
+            "http://labs.phaser.io/assets/sprites/ufo.png" //TODO: change image
+          );
+
+          this.load.atlas(
+            "flares",
+            "http://labs.phaser.io/assets/particles/flares.png",
+            "http://labs.phaser.io/assets/particles/flares.json"
+          ); //TODO: change particles not showing properly on white background
+        }
+        create() {
+          this.power = 0;
+          this.isMoving = false;
+
+          //catch level not existing and set to 0 // TODO: change this to be better/ end game
+          if (levels[this.levelNumber]) {
+            this.level = levels[this.levelNumber];
+          } else {
+            this.level = levels[0];
+          }
+          console.log(this.level);
+
+          this.data.set("level", this.levelNumber);
+          this.data.set("shots", 0);
+          this.data.set("score", this.data.values.score);
+
+          //ball
+          this.ball = this.physics.add.sprite(
+            //this.sys.game.config.width / 2,
+            this.level.ballStart.x,
+            this.level.ballStart.y,
+            "ball"
+          );
+          this.ball.setGravityY(200);
+          this.ball.setCollideWorldBounds(true);
+          this.ball.setDrag(50, 0);
+          //this.ball.setFriction(0.7, 0);
+          this.ball.setBounce(0.3);
+
+          /*
+          this.particles = this.add.particles("flares");
+          this.emitter = this.particles.createEmitter({
+            frame: "blue",
+            speed: 100,
+            scale: { start: 0.2, end: 0 },
+            blendMode: "ADD",
+          });
+          this.emitter.startFollow(this.ball);
+          this.emitter.setVisible(false);
+          */
+
+          /*
+          //platforms
+          this.platforms = this.physics.add.staticGroup();
+          this.platforms.create(400, 568, "ground").setScale(2).refreshBody();
+          this.level.platforms.forEach((element) => {
+            this.platforms
+              .create(element.x, element.y, "ground")
+              .setScale(element.scale)
+              .refreshBody();
+          });
+          //set collider
+          this.physics.add.collider(this.ball, this.platforms);
+          */
+
+          //ground
+          this.ground = this.physics.add
+            .image(400, 568, "ground")
+            .setScale(2)
+            .setImmovable(true);
+          this.physics.add.collider(this.ball, this.ground);
+
+          //platforms
+          this.level.platforms.forEach((element) => {
+            var p = this.physics.add
+              .image(element.x, element.y, element.key)
+              //.setFriction(1000, 1000)
+              .setImmovable(true)
+              .setScale(element.scale);
+
+            this.physics.add.collider(this.ball, p);
+          });
+
+          //spinning platforms
+          if (this.level.spinningPlatforms) {
+            this.spinningPlatforms = this.physics.add.group({
+              angularVelocity: 100,
+            });
+
+            this.level.spinningPlatforms.forEach((element) => {
+              this.spinningPlatforms
+                .create(element.x, element.y, element.key)
+                .setScale(element.scale)
+                .setImmovable(true);
+            });
+
+            this.physics.add.collider(this.ball, this.spinningPlatforms); // TODO: angular velocity doesn't support collision
+          }
+
+          //bounce platforms
+          this.bouncePads = this.physics.add.staticGroup();
+          if (this.level.bouncePads) {
+            this.level.bouncePads.forEach((element) =>
+              this.bouncePads
+                .create(element.x, element.y, "bouncePad")
+                .setScale(element.scale)
+                .refreshBody()
+            );
+
+            this.physics.add.collider(this.ball, this.bouncePads, function (
+              _ball,
+              _bp
+            ) {
+              // set velocity for bounce
+              if (_ball.body.velocity.x < 0 && _ball.body.velocity.x > -50) {
+                _ball.setVelocityX(300);
+              } else if (_ball.body.velocity.x < 0) {
+                _ball.setVelocityX(-300);
+              } else {
+                _ball.setVelocityX(300);
+              }
+              if (_ball.body.velocity.y < 0) {
+                _ball.setVelocityY(-300);
+              } else {
+                _ball.setVelocityY(300);
+              }
+            });
+          }
+
+          //moving platforms
+          this.movingPlatforms = [];
+          if (this.level.movingPlatforms) {
+            this.level.movingPlatforms.forEach((element) => {
+              var mp = this.physics.add
+                .image(element.x, element.y, element.key)
+                .setScale(element.scale)
+                .setImmovable(true)
+                .setVelocityX(element.volX)
+                .setVelocityY(element.volY);
+
+              mp.volX = element.volX;
+              mp.volY = element.volY;
+              mp.distanceLeft = element.distanceLeft;
+              mp.distanceRight = element.distanceRight;
+              mp.distanceUp = element.distanceUp;
+              mp.distanceDown = element.distanceDown;
+
+              this.physics.add.collider(this.ball, mp);
+
+              this.movingPlatforms.push(mp);
+            });
+          }
+
+          //flag
+          this.flag = this.physics.add.sprite(
+            this.level.flag.x,
+            this.level.flag.y,
+            "flag"
+          );
+          this.flag.setImmovable();
+          this.physics.add.collider(this.ball, this.flag, function (
+            _ball,
+            _flag
+          ) {
+            // end level
+            console.log("end level");
+            _ball.setVelocity(0, 0);
+
+            //update scores
+            _ball.scene.data.values.score += _ball.scene.data.values.shots;
+            _ball.scene.data.values.shots = 0;
+            _ball.scene.updateScoreText();
+
+            _ball.scene.nextLevel();
+          });
+
+          //warp
+          /*
+          var warps = this.physics.add.staticGroup();
+          var warpA = warps.create(100, 100, "warp");
+          warpA.name = "warpA";
+          var warpB = warps.create(200, 200, "warp");
+          warpB.name = "warpB";
+
+          this.physics.add.collider(this.ball, warps, function (
+            _ball,
+            _inputWarp
+          ) {
+            //warp for a to b
+            //TODO: ser a left and right warp. decide what to do with velocity
+            if (_inputWarp.name == "warpA") {
+              console.log("hit A")
+              _ball.body.x = (warpB.body.x + 30);
+              _ball.body.y = (warpB.body.y + 10);
+            } else if (_inputWarp.name == "warpB") {
+              console.log("hit B")
+              _ball.body.x = (warpA.body.x + 30);
+              _ball.body.y = (warpA.body.y + 10);
+            }
+          });
+          */
+
+          //display data
+          this.text = this.add.text(20, 525, "", {
+            font: "20px Courier",
+            fill: COLOR.Black,
+          });
+          this.updateScoreText();
+
+          //set indicator
+          this.gfx = this.add.graphics().setDefaultStyles({
+            lineStyle: { width: 10, color: 0xffdd00, alpha: 0.5 },
+          });
+          this.line = new Phaser.Geom.Line();
+          this.angle = 0;
+
+          //click input
+          this.input.on("pointerdown", this.setPower, this);
+          this.input.on("pointerup", this.launchBall, this);
+
+          //power meter
+          this.meter = this.add.image(0, 0, "powerbar");
+          this.meter.setOrigin(1, 1);
+          this.meter.scaleY = 0;
+
+          this.input.on(
+            "pointermove",
+            function (pointer) {
+              if (!this.isMoving) {
+                this.gfx.setVisible(true);
+
+                this.angle = Phaser.Math.Angle.BetweenPoints(
+                  this.ball,
+                  pointer
+                );
+                Phaser.Geom.Line.SetToAngle(
+                  this.line,
+                  this.ball.x,
+                  this.ball.y,
+                  this.angle,
+                  128
+                );
+                this.gfx.clear().strokeLineShape(this.line);
+              } else {
+                this.gfx.setVisible(false);
+              }
+            },
+            this
+          );
+        }
+        updateScoreText() {
+          this.text.setText([
+            "Level: " + this.data.get("level"),
+            "Shots: " + this.data.get("shots"),
+            "Score: " + this.data.get("score"),
+          ]);
+        }
+        launchBall() {
+          this.gfx.setVisible(false);
+
+          if (!this.isMoving) {
+            this.timer.remove();
+            this.physics.velocityFromRotation(
+              this.angle,
+              this.power * 100,
+              this.ball.body.velocity
+            );
+
+            this.power = 0;
+            this.meter.scaleY = 0;
+
+            this.data.values.shots += 1;
+            this.updateScoreText();
+          }
+        }
+        setPower() {
+          if (!this.isMoving) {
+            this.meter.x = this.ball.x + 8;
+            this.meter.y = this.ball.y - 15;
+
+            this.timer = this.time.addEvent({
+              delay: 100,
+              callback: this.tick,
+              callbackScope: this,
+              loop: true,
+            });
+          }
+        }
+        tick() {
+          switch (this.power) {
+            case 0:
+              this.meter.clearTint();
+              break;
+            case 1:
+              this.meter.setTint(COLOR.Green);
+              break;
+            case 2:
+              this.meter.setTint(COLOR.Yellow);
+              break;
+            case 3:
+              this.meter.setTint(COLOR.Orange);
+              break;
+            case 4:
+              this.meter.setTint(COLOR.Red);
+              break;
+            default:
+              break;
+          }
+
+          if (this.power < 5) {
+            this.power += 0.5;
+            this.meter.scaleY = this.power;
+          }
+        }
+        update() {
+          //constant running loop
+          if (this.ball.body.velocity.x > 0 || this.ball.body.velocity.y > 0) {
+            this.isMoving = true;
+            //this.emitter.setVisible(true); //TODO: doesnt look nice frames arent updated that well
+          } else {
+            this.isMoving = false;
+            //this.emitter.setVisible(false);
+          }
+
+          //update moving platforms
+          this.movingPlatforms.forEach((element) => {
+            if (element.x >= element.distanceRight) {
+              element.setVelocityX(-element.volX);
+            } else if (element.x <= element.distanceLeft) {
+              element.setVelocityX(element.volX);
+            }
+
+            if (element.y >= element.distanceDown) {
+              element.setVelocityY(-element.volY);
+            } else if (element.y <= element.distanceUp) {
+              element.setVelocityY(element.volY);
+            }
+          });
+        }
+        nextLevel() {
+          this.cameras.main.fadeOut();
+          this.time.addEvent({
+            delay: 2000,
+            callback: () => {
+              this.scene.restart([
+                this.levelNumber + 1,
+                this.data.values.score,
+              ]);
+            },
+          });
+        }
+      }
+
+      var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        backgroundColor: COLOR.Black,
+        parent: "phaser-game",
+        physics: {
+          default: "arcade",
+          arcade: {
+            // gravity: { y: 300 },
+            debug: true,
+          },
+        },
+        scene: [SceneMain],
+      };
+      var game = new Phaser.Game(config);
+    </script>
+  </body>
+</html>
