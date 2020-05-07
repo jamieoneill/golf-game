@@ -28,7 +28,7 @@
         ],
         movingPlatforms: [
           {
-            x: 100,
+            x: 250,
             y: 450,
             volX: 0,
             volY: 50,
@@ -40,14 +40,14 @@
             key: "box",
           },
           {
-            x: 200,
-            y: 350,
+            x: 340,
+            y: 420,
             volX: 0,
             volY: 50,
             distanceLeft: 0,
             distanceRight: 0,
-            distanceUp: 350,
-            distanceDown: 450,
+            distanceUp: 420,
+            distanceDown: 500,
             scale: 0.5,
             key: "box",
           },
@@ -63,7 +63,6 @@
           { x: 655, y: 233, scale: 0.5, key: "ground" },
           { x: 685, y: 233, scale: 0.5, key: "ground" },
           { x: 200, y: 487, scale: 0.5, key: "box" },
-          { x: 200, y: 380, scale: 0.5, key: "box" },
         ],
         spinningPlatforms: [],
         movingPlatforms: [
@@ -78,6 +77,18 @@
             distanceDown: 0,
             scale: 0.2,
             key: "glassPlatform",
+          },
+          {
+            x: 200,
+            y: 360,
+            volX: 0,
+            volY: 50,
+            distanceLeft: 0,
+            distanceRight: 0,
+            distanceUp: 360,
+            distanceDown: 455,
+            scale: 0.5,
+            key: "box",
           },
         ],
         bouncePads: [
@@ -185,18 +196,6 @@
           this.ball.setDrag(50, 0);
           //this.ball.setFriction(0.7, 0);
           this.ball.setBounce(0.3);
-
-          /*
-          this.particles = this.add.particles("flares");
-          this.emitter = this.particles.createEmitter({
-            frame: "blue",
-            speed: 100,
-            scale: { start: 0.2, end: 0 },
-            blendMode: "ADD",
-          });
-          this.emitter.startFollow(this.ball);
-          this.emitter.setVisible(false);
-          */
 
           /*
           //platforms
@@ -315,13 +314,36 @@
             console.log("end level");
             _ball.setVelocity(0, 0);
 
+            //activate particles on flag
+            _ball.scene.emitter.setVisible(true);
+
+            //zoom to flag
+            _ball.scene.cameras.main.pan(_flag.body.x, _flag.body.y, 1000);
+            _ball.scene.cameras.main.zoomTo(2, 1000);
+
             //update scores
             _ball.scene.data.values.score += _ball.scene.data.values.shots;
             _ball.scene.data.values.shots = 0;
             _ball.scene.updateScoreText();
 
-            _ball.scene.nextLevel();
+            //start next level after zoom
+            _ball.scene.time.addEvent({
+              delay: 2000,
+              callback: () => {
+                _ball.scene.nextLevel();
+              },
+            });
           });
+
+          this.particles = this.add.particles("flares");
+          this.emitter = this.particles.createEmitter({
+            frame: "red",
+            speed: 100,
+            scale: { start: 0.1, end: 0 },
+            blendMode: "ADD",
+          });
+          this.emitter.startFollow(this.flag);
+          this.emitter.setVisible(false);
 
           //warp
           /*
@@ -510,7 +532,7 @@
           default: "arcade",
           arcade: {
             // gravity: { y: 300 },
-            debug: true,
+            debug: false,
           },
         },
         scene: [SceneMain],
