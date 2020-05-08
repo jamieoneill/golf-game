@@ -22,6 +22,7 @@
           { x: 600, y: 400, scale: 1, key: "ground" },
           { x: 50, y: 250, scale: 1, key: "ground" },
           { x: 750, y: 220, scale: 1, key: "ground" },
+          { x: 70, y: 240, scale: 1, key: "sand" },
         ],
         spinningPlatforms: [
           //{ x: 100, y: 100, scale: 0.2, key: "glassPlatform" },
@@ -36,7 +37,7 @@
             distanceRight: 0,
             distanceUp: 350,
             distanceDown: 450,
-            scale: 0.5,
+            scale: 1,
             key: "box",
           },
           {
@@ -48,7 +49,7 @@
             distanceRight: 0,
             distanceUp: 420,
             distanceDown: 500,
-            scale: 0.5,
+            scale: 1,
             key: "box",
           },
         ],
@@ -62,7 +63,7 @@
           { x: 120, y: 262, scale: 0.5, key: "ground" },
           { x: 655, y: 233, scale: 0.5, key: "ground" },
           { x: 685, y: 233, scale: 0.5, key: "ground" },
-          { x: 200, y: 487, scale: 0.5, key: "box" },
+          { x: 200, y: 487, scale: 1, key: "box" },
         ],
         spinningPlatforms: [],
         movingPlatforms: [
@@ -87,7 +88,7 @@
             distanceRight: 0,
             distanceUp: 360,
             distanceDown: 455,
-            scale: 0.5,
+            scale: 1,
             key: "box",
           },
         ],
@@ -139,7 +140,7 @@
 
           this.load.image(
             "box",
-            "//labs.phaser.io/assets/sprites/1bitblock1.png"
+            "//labs.phaser.io/assets/sprites/crate32.png"
           );
 
           this.load.image(
@@ -167,6 +168,14 @@
             "//labs.phaser.io/assets/particles/flares.png",
             "//labs.phaser.io/assets/particles/flares.json"
           ); //TODO: change particles not showing properly on white background
+
+          
+          this.load.image(
+            "sand",
+            "//labs.phaser.io/assets/sprites/50x50.png" //TODO: change image
+          );
+
+
         }
         create() {
           this.power = 0;
@@ -194,8 +203,6 @@
           this.ball.setGravityY(200);
           this.ball.setCollideWorldBounds(true);
           this.ball.setDrag(50, 0);
-          //this.ball.setFriction(0.7, 0);
-          this.ball.setBounce(0.3);
 
           /*
           //platforms
@@ -226,7 +233,18 @@
               .setImmovable(true)
               .setScale(element.scale);
 
-            this.physics.add.collider(this.ball, p);
+            p.key = element.key;
+
+            this.physics.add.collider(this.ball, p, function (
+              _ball,
+              _p
+            ) {
+              // set velocity for bounce
+              if(_p.key == "sand"){
+                _ball.setBounce(0)
+                _ball.setVelocityX(0)  
+              }
+            });
           });
 
           //spinning platforms
@@ -428,6 +446,7 @@
         }
         launchBall() {
           this.gfx.setVisible(false);
+          this.ball.setBounce(0.3);
 
           if (!this.isMoving) {
             this.timer.remove();
@@ -532,7 +551,7 @@
           default: "arcade",
           arcade: {
             // gravity: { y: 300 },
-            debug: false,
+            debug: true,
           },
         },
         scene: [SceneMain],
