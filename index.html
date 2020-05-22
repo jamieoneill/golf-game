@@ -13,11 +13,13 @@
         Red: "0xee1818",
         Black: "#000000",
         White: "#ffffff",
+        DarkYellow: "0xfab005",
+        LightYellow: "0xfff3bf",
       };
 
       const zero = {
         levelNumber: 0,
-        ballStart: { x: 20, y: 180 },
+        ballStart: { x: 20, y: 180, key: "ball", type: "normalBall" },
         platforms: [
           { x: 600, y: 400, scale: 1, angle: 0, key: "ground" },
           { x: 50, y: 250, scale: 1, angle: 0, key: "ground" },
@@ -33,6 +35,7 @@
             y: 370,
             distance: 2,
             speed: 0.002,
+            angle: 0,
             moveHorizontal: false,
             moveVertical: true,
             scale: 1,
@@ -43,6 +46,7 @@
             y: 430,
             distance: 1,
             speed: 0.002,
+            angle: 0,
             moveHorizontal: false,
             moveVertical: true,
             scale: 1,
@@ -50,15 +54,16 @@
           },
         ],
         bouncePads: [{ x: 300, y: 150, scale: 1 }],
+        bumpers: [],
         warps: [
-         // { x: 100, y: 100, connectTo: 1 },
-         // { x: 200, y: 200, connectTo: 0 },
+          // { x: 100, y: 100, connectTo: 1 },
+          // { x: 200, y: 200, connectTo: 0 },
         ],
         flag: { x: 700, y: 485 },
       };
       const one = {
         levelNumber: 1,
-        ballStart: { x: 100, y: 180 },
+        ballStart: { x: 100, y: 180, key: "ball", type: "bounceBall" },
         platforms: [
           { x: 120, y: 262, scale: 0.5, angle: 0, key: "ground" },
           { x: 655, y: 233, scale: 0.5, angle: 0, key: "ground" },
@@ -72,6 +77,7 @@
             y: 310,
             distance: 2,
             speed: 0.002,
+            angle: 0,
             moveHorizontal: true,
             moveVertical: false,
             scale: 0.2,
@@ -82,6 +88,7 @@
             y: 360,
             distance: 1.6,
             speed: 0.002,
+            angle: 0,
             moveHorizontal: false,
             moveVertical: true,
             scale: 1,
@@ -93,9 +100,135 @@
           { x: 500, y: 220 },
         ],
         wraps: [],
+        bumpers: [],
         flag: { x: 100, y: 485 },
       };
-      const levels = [zero, one];
+      const two = {
+        levelNumber: 3,
+        ballStart: { x: 50, y: 50, key: "ball", type: "normalBall" },
+        platforms: [
+          { x: 120, y: 100, scale: 0.5, angle: 15, key: "ground" },
+          { x: 235, y: 102, scale: 0.9, angle: 15, key: "box" },
+          { x: 350, y: 150, scale: 0.5, angle: 130, key: "ground" },
+          { x: 268, y: 310, scale: 0.3, angle: 90, key: "ground" },
+          { x: 540, y: 100, scale: 0.3, angle: 40, key: "ground" },
+          { x: 700, y: 180, scale: 0.3, angle: 150, key: "ground" },
+          { x: 450, y: 185, scale: 0.5, angle: 0, key: "ground" },
+          { x: 565, y: 270, scale: 0.3, angle: 90, key: "ground" },
+          { x: 178, y: 380, scale: 0.4, angle: 0, key: "ground" },
+          { x: 350, y: 490, scale: 0.2, angle: 90, key: "ground" },
+
+        ],
+        spinningPlatforms: [],
+        movingPlatforms: [
+          {
+            x: 460,
+            y: 55,
+            distance: 1.6,
+            speed: 0.002,
+            angle: 90,
+            moveHorizontal: false,
+            moveVertical: true,
+            scale: 0.2,
+            key: "glassPlatform",
+          },
+          {
+            x: 100,
+            y: 407,
+            distance: 1.4,
+            speed: 0.002,
+            angle: 0,
+            moveHorizontal: false,
+            moveVertical: true,
+            scale: 1,
+            key: "box",
+          },
+          {
+            x: 170,
+            y: 407,
+            distance: 1.4,
+            speed: 0.002,
+            angle: 0,
+            moveHorizontal: false,
+            moveVertical: true,
+            scale: 1,
+            key: "box",
+          },
+          {
+            x: 240,
+            y: 407,
+            distance: 1.4,
+            speed: 0.002,
+            angle: 0,
+            moveHorizontal: false,
+            moveVertical: true,
+            scale: 1,
+            key: "box",
+          },
+        ],
+        bouncePads: [],
+        wraps: [],
+        bumpers: [
+          {
+            x: 240,
+            y: 280,
+            size: 10,
+            colorDark: COLOR.DarkYellow,
+            colorLight: COLOR.LightYellow,
+          },
+          {
+            x: 200,
+            y: 280,
+            size: 10,
+            colorDark: COLOR.DarkYellow,
+            colorLight: COLOR.LightYellow,
+          },
+          {
+            x: 160,
+            y: 280,
+            size: 10,
+            colorDark: COLOR.DarkYellow,
+            colorLight: COLOR.LightYellow,
+          },
+          {
+            x: 120,
+            y: 280,
+            size: 10,
+            colorDark: COLOR.DarkYellow,
+            colorLight: COLOR.LightYellow,
+          },
+          {
+            x: 140,
+            y: 320,
+            size: 10,
+            colorDark: COLOR.DarkYellow,
+            colorLight: COLOR.LightYellow,
+          },
+          {
+            x: 180,
+            y: 320,
+            size: 10,
+            colorDark: COLOR.DarkYellow,
+            colorLight: COLOR.LightYellow,
+          },
+          {
+            x: 220,
+            y: 320,
+            size: 10,
+            colorDark: COLOR.DarkYellow,
+            colorLight: COLOR.LightYellow,
+          },
+          {
+            x: 780,
+            y: 135,
+            size: 10,
+            colorDark: COLOR.DarkYellow,
+            colorLight: COLOR.LightYellow,
+          },
+        ],
+        flag: { x: 400, y: 485 },
+      };
+      const levels = [zero, one, two];
 
       class SceneMain extends Phaser.Scene {
         constructor() {
@@ -137,8 +270,13 @@
         preload() {
           //load our images or sounds
           this.load.image(
-            "ball",
+            "normalBall",
             "//labs.phaser.io/assets/sprites/yellow_ball.png"
+          );
+
+          this.load.image(
+            "bounceBall",
+            "//labs.phaser.io/assets/sprites/red_ball.png"
           );
 
           this.load.image(
@@ -214,10 +352,16 @@
           this.ball = this.matter.add.image(
             this.level.ballStart.x,
             this.level.ballStart.y,
-            "ball"
+            this.level.ballStart.type
           );
-          this.ball.setCircle();
+          (this.ball.key = this.level.ballStart.key), this.ball.setCircle();
           this.ball.setCollisionCategory(cat1);
+
+          if (this.level.ballStart.type == "bounceBall") {
+            this.ball.setBounce(1.3);
+          } else {
+            this.ball.setBounce(0.5);
+          }
 
           //ground
           this.ground = this.matter.add
@@ -306,8 +450,31 @@
             p.body.restitution = 1.5;
           });
 
-          //flag
+          //bumpers
+          this.level.bumpers.forEach((element) => {
+            var bumper = this.add.circle(
+              element.x,
+              element.y,
+              element.size,
+              element.colorDark
+            );
+            bumper.key = "bumper";
+            bumper.colorDark = element.colorDark;
+            bumper.colorLight = element.colorLight;
 
+            var body = this.matter.add.circle(
+              element.x,
+              element.y,
+              element.size,
+              {
+                isStatic: true,
+              }
+            );
+            body.restitution = 1.2;
+            this.matter.add.gameObject(bumper, body);
+          });
+
+          //flag
           this.flag = this.matter.add.image(
             this.level.flag.x,
             this.level.flag.y,
@@ -351,11 +518,29 @@
 
           //special collision events
           this.matter.world.on("collisionstart", function (event) {
+            //object doesn't have special collision. return
+            if (
+              !event.pairs[0].bodyA.gameObject ||
+              !event.pairs[0].bodyB.gameObject
+            ) {
+              return;
+            }
+
             //ball hits sand
             if (event.pairs[0].bodyB.gameObject.key == "sand") {
               //console.log(event.source.pairs.list[0].collision.axisBody) TODO: find point of collision and set ball to that position
-              event.pairs[0].bodyA.gameObject.setBounce(0);
+              //event.pairs[0].bodyA.gameObject.setBounce(0);
               event.pairs[0].bodyA.gameObject.setVelocity(0, 0);
+            }
+
+            //ball hits bumper
+            if (event.pairs[0].bodyB.gameObject.key == "bumper") {
+              //light up bumper
+              var hitBumper = event.pairs[0].bodyB.gameObject;
+              hitBumper.fillColor = hitBumper.colorLight;
+              setTimeout(function () {
+                hitBumper.fillColor = hitBumper.colorDark;
+              }, 100);
             }
 
             //ball hits warp
@@ -367,13 +552,17 @@
             }
 
             //ball hits flag
-            if (event.pairs[0].bodyB.gameObject.key == "flag") {
+            if (
+              event.pairs[0].bodyA.gameObject.key == "ball" &&
+              event.pairs[0].bodyB.gameObject.key == "flag"
+            ) {
               var _ball = event.pairs[0].bodyA.gameObject;
               var _flag = event.pairs[0].bodyB.gameObject;
 
               //end level
               console.log("end level");
               _ball.setVelocity(0, 0);
+              _ball.setBounce(0);
 
               //activate particles on flag
               _ball.scene.emitter.setVisible(true);
@@ -429,8 +618,6 @@
           ]);
         }
         launchBall() {
-          this.ball.setBounce(0.5);
-
           if (this.timer) {
             this.timer.remove();
           }
@@ -556,7 +743,7 @@
         type: Phaser.AUTO,
         width: 800,
         height: 600,
-        backgroundColor: COLOR.Black,
+        backgroundColor: "#efefef", //COLOR.Black,
         parent: "phaser-game",
         scene: [SceneMain],
       };
